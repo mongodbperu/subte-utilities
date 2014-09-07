@@ -86,6 +86,9 @@ class ProcessTest(unittest.TestCase):
             def prepare(self):
                 self.prepare_was_called = True
 
+            def execute(self):
+                pass
+
             def finish(self):
                 self.finish_was_called = True
 

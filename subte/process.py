@@ -10,9 +10,9 @@ class ProcessMode(object):
 
     def __init__(self, subparsers):
         self.subparsers = subparsers
-        self.set_subparser(subparsers)
+        self._set_subparser(subparsers)
 
-    def set_subparser(self, subparsers):
+    def _set_subparser(self, subparsers):
         subcmd = self.SUBCOMMAND or self.__class__.__name__.lower()
         subparser = self.subparsers.add_parser(subcmd, help=self.HELPTEXT,
                                                description=self.DESCRIPTION)
