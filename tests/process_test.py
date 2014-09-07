@@ -28,6 +28,15 @@ class ProcessTest(unittest.TestCase):
         self.assertEquals(self.proc2.parser.prog, 'Process2')
         self.assertEquals(self.proc3.parser.prog, 'my-proc')
 
+    def test_process_without_modes(self):
+        self.assertEquals(self.proc1.MODES, [])
+        self.assertEquals(self.proc2.MODES, [])
+        self.assertEquals(self.proc3.MODES, [])
+
+        self.assertEquals(self.proc1.current_mode, None)
+        self.assertEquals(self.proc2.current_mode, None)
+        self.assertEquals(self.proc3.current_mode, None)
+
     def test_modes(self):
         class Mode1(ProcessMode):
 
@@ -45,6 +54,45 @@ class ProcessTest(unittest.TestCase):
         self.assertTrue(Mode1 in proc.MODES)
         self.assertTrue(Mode2 in proc.MODES)
         self.assertTrue(isinstance(proc.current_mode, Mode1))
+
+    def test_set_arguments(self):
+        class MyProcess(Process):
+
+            def set_arguments(self, parser):
+                self.set_arguments_was_called = True
+
+        proc = MyProcess()
+        self.assertTrue(proc.set_arguments_was_called)
+
+    def test_run(self):
+        class ExecuteProcess(Process):
+
+            def execute(self):
+                self.execute_was_called = True
+
+        class NoExecuteProcess(Process):
+            pass
+
+        proc = ExecuteProcess([])
+        proc.run()
+        self.assertTrue(proc.execute_was_called)
+
+        proc = NoExecuteProcess([])
+        self.assertRaises(NotImplementedError, proc.run)
+
+    def test_prepare_and_finish(self):
+        class MyProcess(Process):
+
+            def prepare(self):
+                self.prepare_was_called = True
+
+            def finish(self):
+                self.finish_was_called = True
+
+        proc = MyProcess()
+        proc.run()
+        self.assertTrue(proc.prepare_was_called)
+        self.assertTrue(proc.finish_was_called)
 
 
 class ProcessModeTest(unittest.TestCase):
