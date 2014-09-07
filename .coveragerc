@@ -1,0 +1,6 @@
+[run]
+source = subte
+
+[report]
+exclude_lines =
+    pragma: no cover
