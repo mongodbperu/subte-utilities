@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 
 from unittest import defaultTestLoader, TextTestRunner, TestSuite
 
-TESTS = ('subte_test', 'generator_test', )
+TESTS = ('subte_test', 'process_test', 'generator_test', )
 
 
 def make_suite(prefix='', extra=(), force_all=False):
