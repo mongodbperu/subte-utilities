@@ -68,7 +68,10 @@ def main():
             sys.exit(1)
 
         from pyflakes import api, reporter
-        api.checkRecursive(['subte', 'tests'], reporter._makeDefaultReporter())
+        warnings = api.checkRecursive(['subte', 'tests'],
+                                      reporter._makeDefaultReporter())
+        if warnings > 0:
+            sys.exit(1)
 
     suite = make_suite('', tuple(extra_args), options.force_all)
 
