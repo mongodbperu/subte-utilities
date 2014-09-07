@@ -44,7 +44,7 @@ class Process(object):
             return None
         return self.__modes[self.arguments.subparser_name]
 
-    def __init__(self):
+    def __init__(self, args=None):
         name = self.NAME or self.__class__.__name__
         self.parser = argparse.ArgumentParser(name)
         self.set_arguments(self.parser)
@@ -55,21 +55,18 @@ class Process(object):
             self.__modes = {}
             for mode_class in self.MODES:
                 mode_instance = mode_class(subparsers)
-                self.__modes[mode_instance.SUBCOMMAND] = mode_instance
-        self.arguments = self.parser.parse_args()
-        self.initialize_mode()
+                subcmd = (mode_instance.SUBCOMMAND or
+                          mode_instance.__class__.__name__.lower())
+                self.__modes[subcmd] = mode_instance
+
+        self.arguments = self.parser.parse_args(args)
+        if self.current_mode:
+            self.current_mode.initialize(self.arguments)
 
     def set_arguments(self, parser):
         """Useful to set process-specific arguments.
         """
         pass
-
-    def initialize_mode(self):
-        """If the process has a mode, the mode's initialize method is called
-        here.
-        """
-        if self.current_mode:
-            self.current_mode.initialize(self.arguments)
 
     def prepare(self):
         pass
