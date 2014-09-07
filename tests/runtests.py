@@ -28,6 +28,8 @@ def main():
     parser = OptionParser()
     parser.add_option('--with-pep8', action='store_true', dest='with_pep8',
                       default=True)
+    parser.add_option('--with-pyflakes', action='store_true',
+                      dest='with_pyflakes', default=True)
     parser.add_option('--force-all', action='store_true', dest='force_all',
                       default=False)
     parser.add_option('-v', '--verbose', action='count', dest='verbosity',
@@ -35,16 +37,13 @@ def main():
     parser.add_option('-q', '--quiet', action='count', dest='quietness',
                       default=0)
     options, extra_args = parser.parse_args()
-    has_pep8 = False
-    try:
-        import pep8
-        has_pep8 = True
-    except ImportError:
-        if options.with_pep8:
+    if options.with_pep8:
+        try:
+            import pep8
+        except ImportError:
             sys.stderr.write('# Could not find pep8 library.\n')
             sys.exit(1)
 
-    if has_pep8:
         guide_main = pep8.StyleGuide(
             ignore=[],
             paths=['subte/'],
@@ -60,6 +59,16 @@ def main():
             report = guide.check_files()
             if report.total_errors:
                 sys.exit(1)
+
+    if options.with_pyflakes:
+        try:
+            import pyflakes
+        except ImportError:
+            sys.stderr.write('# Could not find pyflakes library.\n')
+            sys.exit(1)
+
+        from pyflakes import api, reporter
+        api.checkRecursive(['subte', 'tests'], reporter._makeDefaultReporter())
 
     suite = make_suite('', tuple(extra_args), options.force_all)
 
