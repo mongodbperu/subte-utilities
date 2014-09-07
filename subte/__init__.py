@@ -12,3 +12,5 @@ version = get_version_string()
 
 
 from subte.generator import Generator
+
+assert Generator  # silence pyflakes

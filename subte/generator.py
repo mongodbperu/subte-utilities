@@ -5,9 +5,7 @@ import os
 import os.path
 import re
 import shutil
-import sys
 
-from datetime import datetime
 from unicodedata import normalize
 
 try:
@@ -15,7 +13,6 @@ try:
 except ImportError:
     from pymongo import Connection
     MongoClient = Connection
-from pymongo.errors import ConnectionFailure
 
 from subte.process import Process, ProcessMode
 

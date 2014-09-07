@@ -1,5 +1,6 @@
 import os
 import sys
+
 from unittest import defaultTestLoader, TextTestRunner, TestSuite
 
 TESTS = ('subte_test', 'generator_test', )
@@ -63,6 +64,7 @@ def main():
     if options.with_pyflakes:
         try:
             import pyflakes
+            assert pyflakes  # silence pyflakes
         except ImportError:
             sys.stderr.write('# Could not find pyflakes library.\n')
             sys.exit(1)

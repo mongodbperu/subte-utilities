@@ -21,3 +21,4 @@ class SubteTest(unittest.TestCase):
 
     def test_class_aliases(self):
         generator_class = subte.Generator
+        assert generator_class
