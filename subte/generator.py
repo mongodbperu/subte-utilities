@@ -82,6 +82,8 @@ class Generator(Process):
                             help='Force creation of destination directory')
 
     def prepare(self):
+        if not hasattr(self.current_mode, 'mapping'):
+            raise ValueError('current_mode must have a mapping attribute.')
         self.mapping = self.current_mode.mapping
         if (self.arguments.force and
            not os.path.exists(self.arguments.target_dir)):
