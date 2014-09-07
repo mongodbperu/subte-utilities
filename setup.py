@@ -28,6 +28,7 @@ setup(
     packages=['subte'],
     keywords=['subte', 'mongodb', 'university', 'courses', 'translation',
               'utilities'],
+    install_requires=['pymongo'],
     license='Apache License, Version 2.0',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -43,4 +44,5 @@ setup(
             'subte-gen = subte.generator:main',
         ],
     },
+    test_suite='tests.runtests',
 )
