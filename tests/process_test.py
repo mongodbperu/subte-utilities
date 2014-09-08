@@ -38,36 +38,68 @@ class ProcessTest(unittest.TestCase):
         self.assertEquals(self.proc3.current_mode, None)
 
     def test_modes(self):
+        self.initialize_mode2_was_called = False
+        self.initialize_mode3_was_called = False
+
         class Mode1(ProcessMode):
 
             def set_arguments(self, subparser):
                 pass
 
         class Mode2(Mode1):
+
+            def initialize(mode_self, arguments):
+                attr_format = 'initialize_{}_was_called'
+                name = attr_format.format(mode_self.__class__.__name__.lower())
+                setattr(self, name, True)
+
+        class Mode3(Mode2):
             pass
 
         class MyProcess(Process):
 
-            MODES = [Mode1, Mode2]
+            MODES = [Mode1, Mode2, Mode3]
 
         proc = MyProcess(['mode1'])
         self.assertTrue(Mode1 in proc.MODES)
         self.assertTrue(Mode2 in proc.MODES)
+        self.assertTrue(Mode3 in proc.MODES)
+
         self.assertTrue(isinstance(proc.current_mode, Mode1))
+        self.assertFalse(self.initialize_mode2_was_called)
+        self.assertFalse(self.initialize_mode3_was_called)
+
+        self.initialize_mode2_was_called = False
+        self.initialize_mode3_was_called = False
+        proc = MyProcess(['mode2'])
+        self.assertTrue(isinstance(proc.current_mode, Mode2))
+        self.assertTrue(self.initialize_mode2_was_called)
+        self.assertFalse(self.initialize_mode3_was_called)
+
+        self.initialize_mode2_was_called = False
+        self.initialize_mode3_was_called = False
+        proc = MyProcess(['mode3'])
+        self.assertTrue(isinstance(proc.current_mode, Mode3))
+        self.assertFalse(self.initialize_mode2_was_called)
+        self.assertTrue(self.initialize_mode3_was_called)
 
     def test_set_arguments(self):
         class MyProcess(Process):
 
             def set_arguments(self, parser):
-                self.set_arguments_was_called = True
+                self.parser.add_argument('-a', default=True)
+                self.parser.add_argument('-b', default=False)
 
-        proc = MyProcess()
-        self.assertTrue(proc.set_arguments_was_called)
+        proc = MyProcess([])
+        self.assertTrue(proc.arguments.a)
+        self.assertFalse(proc.arguments.b)
 
     def test_run(self):
+        self.execute_was_called = False
+
         class ExecuteProcess(Process):
 
-            def execute(self):
+            def execute(process_self):
                 self.execute_was_called = True
 
         class NoExecuteProcess(Process):
@@ -75,7 +107,7 @@ class ProcessTest(unittest.TestCase):
 
         proc = ExecuteProcess([])
         proc.run()
-        self.assertTrue(proc.execute_was_called)
+        self.assertTrue(self.execute_was_called)
 
         proc = NoExecuteProcess([])
         self.assertRaises(NotImplementedError, proc.run)
@@ -117,3 +149,18 @@ class ProcessModeTest(unittest.TestCase):
                 pass
         parser = argparse.ArgumentParser()
         assert Mode(parser.add_subparsers())
+
+    def test_initialize(self):
+        self.initialize_was_called = False
+
+        class Mode(ProcessMode):
+
+            def set_arguments(self, subparser):
+                pass
+
+            def initialize(mode_self, arguments):
+                self.initialize_was_called = True
+
+        parser = argparse.ArgumentParser()
+        Mode(parser.add_subparsers())
+        self.assertFalse(self.initialize_was_called)
