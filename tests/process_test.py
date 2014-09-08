@@ -65,17 +65,16 @@ class ProcessTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             with capture_sys_output() as (stdout, stderr):
                 MyProcess([])
-        self.assertTrue('too few arguments' in stderr.getvalue())
+        self.assertIn('too few arguments', stderr.getvalue())
 
         with self.assertRaises(SystemExit):
             with capture_sys_output() as (stdout, stderr):
                 MyProcess(['unknown'])
-        self.assertTrue("invalid choice: 'unknown'" in stderr.getvalue())
+        self.assertIn("invalid choice: 'unknown'", stderr.getvalue())
 
         proc = MyProcess(['mode1'])
-        self.assertTrue(Mode1 in proc.MODES)
-        self.assertTrue(Mode2 in proc.MODES)
-        self.assertTrue(Mode3 in proc.MODES)
+        for mode in [Mode1, Mode2, Mode3]:
+            self.assertIn(mode, proc.MODES)
 
         self.assertTrue(isinstance(proc.current_mode, Mode1))
         self.assertFalse(self.initialize_mode2_was_called)
