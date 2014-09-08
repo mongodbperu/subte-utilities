@@ -162,5 +162,7 @@ class ProcessModeTest(unittest.TestCase):
                 self.initialize_was_called = True
 
         parser = argparse.ArgumentParser()
-        Mode(parser.add_subparsers())
+        mode = Mode(parser.add_subparsers())
         self.assertFalse(self.initialize_was_called)
+        mode.initialize(None)
+        self.assertTrue(self.initialize_was_called)
