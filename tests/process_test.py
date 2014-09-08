@@ -8,6 +8,8 @@ import argparse
 
 from subte.process import Process, ProcessMode
 
+from tests.utils import capture_sys_output
+
 
 class ProcessTest(unittest.TestCase):
 
@@ -59,6 +61,16 @@ class ProcessTest(unittest.TestCase):
         class MyProcess(Process):
 
             MODES = [Mode1, Mode2, Mode3]
+
+        with self.assertRaises(SystemExit):
+            with capture_sys_output() as (stdout, stderr):
+                MyProcess([])
+        self.assertTrue('too few arguments' in stderr.getvalue())
+
+        with self.assertRaises(SystemExit):
+            with capture_sys_output() as (stdout, stderr):
+                MyProcess(['unknown'])
+        self.assertTrue("invalid choice: 'unknown'" in stderr.getvalue())
 
         proc = MyProcess(['mode1'])
         self.assertTrue(Mode1 in proc.MODES)
