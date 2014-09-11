@@ -11,8 +11,7 @@ from unicodedata import normalize
 try:
     from pymongo import MongoClient
 except ImportError:
-    from pymongo import Connection
-    MongoClient = Connection
+    from pymongo import Connection as MongoClient
 
 from subte.process import Process, ProcessMode
 
