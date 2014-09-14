@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 import argparse
 
+from subte import log
+
+LOGGING_LEVELS = [
+    'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'
+]
+
 
 class ProcessMode(object):
 
@@ -47,6 +53,8 @@ class Process(object):
     def __init__(self, args=None):
         name = self.NAME or self.__class__.__name__
         self.parser = argparse.ArgumentParser(name)
+        self.parser.add_argument('-l', '--logging', type=str, default='INFO',
+                                 choices=LOGGING_LEVELS, help='Logging level')
         self.set_arguments(self.parser)
         if self.MODES:
             subparsers = self.parser.add_subparsers(title='Modes',
@@ -60,6 +68,7 @@ class Process(object):
                 self.__modes[subcmd] = mode_instance
 
         self.arguments = self.parser.parse_args(args)
+        log.setup(self.arguments.logging)
         if self.current_mode:
             self.current_mode.initialize(self.arguments)
 
