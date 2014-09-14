@@ -86,10 +86,8 @@ class Generator(Process):
             os.makedirs(self.arguments.target_dir)
 
     def execute(self):
-        i = 0
-        for item in self.mapping:
-            result = self.process_item(i + 1, item)
-            i += int(result)
+        for index, item in enumerate(self.mapping):
+            result = self.process_item(index + 1, item)
 
     def process_item(self, number, item):
         has_lecture = 'lecture' in item
@@ -97,7 +95,7 @@ class Generator(Process):
         if not has_lecture and not has_answer:
             logging.warning('"{}" has not lecture and answer.'.format(
                 item['concept']))
-            return False
+            return
         flat_concept = self.get_flat_concept(item['concept'])
         if has_lecture != has_answer:
             source = '{}.{}'.format(item[{True: 'lecture',
@@ -105,21 +103,20 @@ class Generator(Process):
                                     self.arguments.caption_extension)
             filename = self.get_filename(self.__MAPPING_FORMAT2[has_lecture],
                                          number, flat_concept)
-            result = self.copy_file(source, filename)
+            self.copy_file(source, filename)
         else:
             if has_lecture:
                 source = '{}.{}'.format(item['lecture'],
                                         self.arguments.caption_extension)
                 filename = self.get_filename(self.__MAPPING_FORMAT['lecture'],
                                              number, flat_concept)
-                result = self.copy_file(source, filename)
+                self.copy_file(source, filename)
             if has_answer:
                 source = '{}.{}'.format(item['answer'],
                                         self.arguments.caption_extension)
                 filename = self.get_filename(self.__MAPPING_FORMAT['answer'],
                                              number, flat_concept)
-                result = self.copy_file(source, filename)
-        return result
+                self.copy_file(source, filename)
 
     def get_flat_concept(self, concept):
         concept = concept.replace('(', '')
@@ -144,9 +141,8 @@ class Generator(Process):
                         os.path.join(self.arguments.target_dir, destination))
         except Exception as e:
             logging.error(e, exc_info=True)
-            return True
-        logging.info('Copied {} to {}'.format(origin, destination))
-        return True
+        else:
+            logging.info('Copied {} to {}'.format(origin, destination))
 
 
 def main():
