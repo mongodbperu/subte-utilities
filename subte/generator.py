@@ -87,7 +87,7 @@ class Generator(Process):
 
     def execute(self):
         for index, item in enumerate(self.mapping):
-            result = self.process_item(index + 1, item)
+            self.process_item(index + 1, item)
 
     def process_item(self, number, item):
         has_lecture = 'lecture' in item
