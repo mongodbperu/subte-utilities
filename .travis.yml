@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install coverage coveralls
+  - pip install pep8 pyflakes coverage coveralls
   - pip install . --use-mirrors
 script: coverage run tests/runtests.py
 after_success:
