@@ -48,7 +48,7 @@ class LogFormatter(logging.Formatter):
         record.asctime = time.strftime(
             "%Y-%m-%d %H:%M:%S", self.converter(record.created))
         prefix = ('[%(levelname)-8s %(asctime)s %(process)s %(module)s:'
-            '%(lineno)d]') % record.__dict__
+                  '%(lineno)d]') % record.__dict__
         if self._color:
             prefix = (self._colors.get(record.levelno, self._normal) +
                       prefix + self._normal)
