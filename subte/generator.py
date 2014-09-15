@@ -52,16 +52,9 @@ class Generator(Process):
 
     NAME = 'subte-gen'
     MODES = [JSONMode, MongoDBMode]
-
-    __MAPPING_FORMAT = {
-        'lecture': '{number:02d}a-{flat_concept}-Lecture.{extension}',
-        'answer': '{number:02d}b-{flat_concept}-Answer.{extension}'
-    }
-    __MAPPING_FORMAT2 = {
-        True: '{number:02d}-{flat_concept}-Lecture.{extension}',
-        False: '{number:02d}-{flat_concept}-Answer.{extension}'
-    }
-    __RE_FLAT_CONCEPT = re.compile(r'[\t !"#%&\'*\:\;\-/<=>?@\[\\\]^_`{|},.]+')
+    __FILENAME_FORMAT = '{number:02d}-{flat_concept}-{file_type}.{extension}'
+    __FLAT_CONCEPT_REGEX = re.compile(r'[\t !"#$%&\'()*\:\;\-/<=>?@\[\\\]^_`{|'
+                                       '},.]+')
 
     def set_arguments(self, parser):
         parser.add_argument('-s', '--source_dir', type=str, required=True,
@@ -87,7 +80,14 @@ class Generator(Process):
 
     def execute(self):
         for index, item in enumerate(self.mapping):
-            self.process_item(index + 1, item)
+            try:
+                self.process_item(index + 1, item)
+            except Exception as e:
+                self._handle_exception(e)
+
+    def _handle_exception(self, exception):
+        exc_info = not isinstance(exception, IOError)
+        logging.error(exception, exc_info=exc_info)
 
     def process_item(self, number, item):
         has_lecture = 'lecture' in item
@@ -98,51 +98,40 @@ class Generator(Process):
             return
         flat_concept = self.get_flat_concept(item['concept'])
         if has_lecture != has_answer:
-            source = '{}.{}'.format(item[{True: 'lecture',
-                                          False: 'answer'}[has_lecture]],
+            file_type = 'lecture' if has_lecture else 'answer'
+            source = '{}.{}'.format(item[file_type],
                                     self.arguments.caption_extension)
-            filename = self.get_filename(self.__MAPPING_FORMAT2[has_lecture],
-                                         number, flat_concept)
+            filename = self.get_filename(number, flat_concept, file_type)
             self.copy_file(source, filename)
         else:
-            if has_lecture:
-                source = '{}.{}'.format(item['lecture'],
-                                        self.arguments.caption_extension)
-                filename = self.get_filename(self.__MAPPING_FORMAT['lecture'],
-                                             number, flat_concept)
-                self.copy_file(source, filename)
-            if has_answer:
-                source = '{}.{}'.format(item['answer'],
-                                        self.arguments.caption_extension)
-                filename = self.get_filename(self.__MAPPING_FORMAT['answer'],
-                                             number, flat_concept)
-                self.copy_file(source, filename)
+            for file_type in ['lecture', 'answer']:
+                if file_type in item:
+                    source = '{}.{}'.format(item[file_type],
+                                            self.arguments.caption_extension)
+                    filename = self.get_filename(number, flat_concept,
+                                                 file_type)
+                    self.copy_file(source, filename)
 
     def get_flat_concept(self, concept):
-        concept = concept.replace('(', '')
-        concept = concept.replace(')', '')
         result = []
-        for word in self.__RE_FLAT_CONCEPT.split(concept):
+        for word in self.__FLAT_CONCEPT_REGEX.split(concept.lower()):
             result.append(normalize('NFKD', word).encode('ascii', 'ignore'))
         return unicode('_'.join(result))
 
-    def get_filename(self, filename_format, number, flat_concept):
-        return filename_format.format(**{
+    def get_filename(self, number, flat_concept, file_type):
+        return self.__FILENAME_FORMAT.format(**{
             'number': number,
             'flat_concept': flat_concept,
+            'file_type': file_type,
             'extension': self.arguments.caption_extension
         })
 
     def copy_file(self, origin, destination):
         if self.arguments.reverse:
             destination, origin = origin, destination
-        try:
-            shutil.copy(os.path.join(self.arguments.source_dir, origin),
-                        os.path.join(self.arguments.target_dir, destination))
-        except Exception as e:
-            logging.error(e, exc_info=True)
-        else:
-            logging.info('Copied {} to {}'.format(origin, destination))
+        shutil.copy(os.path.join(self.arguments.source_dir, origin),
+                    os.path.join(self.arguments.target_dir, destination))
+        logging.info('Copied {} to {}'.format(origin, destination))
 
 
 def main():
