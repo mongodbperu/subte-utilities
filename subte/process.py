@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
+import logging
+import sys
 
 from subte import log
 
@@ -80,13 +82,23 @@ class Process(object):
     def prepare(self):
         pass
 
-    def execute(self):
+    def run(self):
         raise NotImplementedError
 
     def finish(self):
         pass
 
-    def run(self):
-        self.prepare()
-        self.execute()
-        self.finish()
+    def log_exception(self, typ, value, tb):
+        logging.error('Uncaught exception', exc_info=(typ, value, tb))
+
+    def handle_exception(self, e):
+        pass
+
+    def execute(self):
+        try:
+            self.prepare()
+            self.run()
+            self.finish()
+        except Exception as e:
+            self.handle_exception(e)
+            self.log_exception(*sys.exc_info())

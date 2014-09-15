@@ -78,16 +78,9 @@ class Generator(Process):
            not os.path.exists(self.arguments.target_dir)):
             os.makedirs(self.arguments.target_dir)
 
-    def execute(self):
+    def run(self):
         for index, item in enumerate(self.mapping):
-            try:
-                self.process_item(index + 1, item)
-            except Exception as e:
-                self._handle_exception(e)
-
-    def _handle_exception(self, exception):
-        exc_info = not isinstance(exception, IOError)
-        logging.error(exception, exc_info=exc_info)
+            self.process_item(index + 1, item)
 
     def process_item(self, number, item):
         has_lecture = 'lecture' in item
@@ -129,14 +122,17 @@ class Generator(Process):
     def copy_file(self, origin, destination):
         if self.arguments.reverse:
             destination, origin = origin, destination
-        shutil.copy(os.path.join(self.arguments.source_dir, origin),
-                    os.path.join(self.arguments.target_dir, destination))
-        logging.info('Copied {} to {}'.format(origin, destination))
+        try:
+            shutil.copy(os.path.join(self.arguments.source_dir, origin),
+                        os.path.join(self.arguments.target_dir, destination))
+            logging.info('Copied {} to {}'.format(origin, destination))
+        except IOError as e:
+            logging.error(e)
 
 
 def main():
     generator = Generator()
-    generator.run()
+    generator.execute()
 
 if __name__ == '__main__':
     main()
