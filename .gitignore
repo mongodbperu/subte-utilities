@@ -3,4 +3,5 @@
 .coverage
 build/
 dist/
+*.egg
 *.egg-info/
