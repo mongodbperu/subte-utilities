@@ -105,40 +105,43 @@ class ProcessTest(unittest.TestCase):
         self.assertTrue(proc.arguments.a)
         self.assertFalse(proc.arguments.b)
 
-    def test_run(self):
-        self.execute_was_called = False
+    def test_handle(self):
+        self.handle_was_called = False
 
         class ExecuteProcess(Process):
 
-            def execute(process_self):
-                self.execute_was_called = True
+            def handle(process_self):
+                self.handle_was_called = True
 
         class NoExecuteProcess(Process):
             pass
 
         proc = ExecuteProcess([])
         proc.run()
-        self.assertTrue(self.execute_was_called)
+        self.assertTrue(self.handle_was_called)
 
         proc = NoExecuteProcess([])
         self.assertRaises(NotImplementedError, proc.run)
 
     def test_prepare_and_finish(self):
+        self.prepare_was_called = False
+        self.finish_was_called = False
+
         class MyProcess(Process):
 
-            def prepare(self):
+            def prepare(process_self):
                 self.prepare_was_called = True
 
-            def execute(self):
+            def handle(self):
                 pass
 
-            def finish(self):
+            def finish(process_self):
                 self.finish_was_called = True
 
-        proc = MyProcess()
+        proc = MyProcess([])
         proc.run()
-        self.assertTrue(proc.prepare_was_called)
-        self.assertTrue(proc.finish_was_called)
+        self.assertTrue(self.prepare_was_called)
+        self.assertTrue(self.finish_was_called)
 
 
 class ProcessModeTest(unittest.TestCase):

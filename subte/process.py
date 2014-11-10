@@ -82,7 +82,7 @@ class Process(object):
     def prepare(self):
         pass
 
-    def run(self):
+    def handle(self):
         raise NotImplementedError
 
     def finish(self):
@@ -94,11 +94,12 @@ class Process(object):
     def handle_exception(self, e):
         pass
 
-    def execute(self):
+    def run(self):
         try:
             self.prepare()
-            self.run()
+            self.handle()
             self.finish()
         except Exception as e:
             self.handle_exception(e)
             self.log_exception(*sys.exc_info())
+            raise

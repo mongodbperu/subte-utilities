@@ -78,7 +78,7 @@ class Generator(Process):
            not os.path.exists(self.arguments.target_dir)):
             os.makedirs(self.arguments.target_dir)
 
-    def run(self):
+    def handle(self):
         for index, item in enumerate(self.mapping):
             self.process_item(index + 1, item)
 
@@ -132,7 +132,7 @@ class Generator(Process):
 
 def main():
     generator = Generator()
-    generator.execute()
+    generator.run()
 
 if __name__ == '__main__':
     main()
