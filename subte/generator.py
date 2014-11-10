@@ -54,7 +54,7 @@ class Generator(Process):
     MODES = [JSONMode, MongoDBMode]
     __FILENAME_FORMAT = '{number:02d}-{flat_concept}-{file_type}.{extension}'
     __FLAT_CONCEPT_REGEX = re.compile(r'[\t !"#$%&\'()*\:\;\-/<=>?@\[\\\]^_`{|'
-                                       '},.]+')
+                                      '},.]+')
 
     def set_arguments(self, parser):
         parser.add_argument('-s', '--source_dir', type=str, required=True,
