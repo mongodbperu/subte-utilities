@@ -121,7 +121,7 @@ class ProcessTest(unittest.TestCase):
         self.assertTrue(self.handle_was_called)
 
         proc = NoExecuteProcess([])
-        self.assertRaises(NotImplementedError, proc.run)
+        proc.run()
 
     def test_prepare_and_finish(self):
         self.prepare_was_called = False
