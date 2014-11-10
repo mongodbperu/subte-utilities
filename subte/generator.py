@@ -108,7 +108,9 @@ class Generator(Process):
     def get_flat_concept(self, concept):
         result = []
         for word in self.__FLAT_CONCEPT_REGEX.split(concept.lower()):
-            result.append(normalize('NFKD', word).encode('ascii', 'ignore'))
+            if word:
+                result.append(normalize('NFKD', word).encode('ascii',
+                                                             'ignore'))
         return unicode('_'.join(result))
 
     def get_filename(self, number, flat_concept, file_type):
