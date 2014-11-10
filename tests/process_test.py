@@ -143,6 +143,21 @@ class ProcessTest(unittest.TestCase):
         self.assertTrue(self.prepare_was_called)
         self.assertTrue(self.finish_was_called)
 
+    def test_handle_exception(self):
+        self.handle_exception_was_called = False
+
+        class MyProcess(Process):
+
+            def handle(process_self):
+                raise Exception
+
+            def handle_exception(process_self, e):
+                self.handle_exception_was_called = True
+
+        proc = MyProcess([])
+        proc.run()
+        self.assertTrue(self.handle_exception_was_called)
+
 
 class ProcessModeTest(unittest.TestCase):
 

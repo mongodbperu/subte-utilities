@@ -10,8 +10,8 @@ from unicodedata import normalize
 
 try:
     from pymongo import MongoClient
-except ImportError:
-    from pymongo import Connection as MongoClient
+except ImportError:  # pragma: no cover
+    from pymongo import Connection as MongoClient  # pragma: no cover
 
 from subte.process import Process, ProcessMode
 
